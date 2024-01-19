@@ -1,13 +1,18 @@
+import 'package:badge_task/controller/baseprovider.dart';
+import 'package:badge_task/controller/dataprovider.dart';
 import 'package:badge_task/views/homepage/widgets/paymentmethod.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class PaymentDialogueBox extends StatelessWidget {
-  const PaymentDialogueBox({
-    super.key,
-  });
+  PaymentDialogueBox({super.key, required this.visitorname});
+  String visitorname;
 
+  final TextEditingController amountcontroller = TextEditingController();
   @override
   Widget build(BuildContext context) {
+    final pro = Provider.of<DataController>(context);
+    final basepro = Provider.of<BaseProvider>(context);
     return AlertDialog(
       actions: [
         const Padding(
@@ -33,6 +38,7 @@ class PaymentDialogueBox extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.all(8.0),
           child: TextFormField(
+            controller: amountcontroller,
             decoration: InputDecoration(
                 border: OutlineInputBorder(),
                 prefixIcon: Icon(Icons.attach_money_outlined)),
@@ -41,7 +47,13 @@ class PaymentDialogueBox extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            TextButton(onPressed: () {}, child: Text('Done')),
+            TextButton(
+                onPressed: () {
+                  pro.addpayment(amountcontroller.text, visitorname,
+                      basepro.paymentmethod!);
+                  Navigator.pop(context);
+                },
+                child: Text('Done')),
             TextButton(
                 onPressed: () {
                   Navigator.pop(context);

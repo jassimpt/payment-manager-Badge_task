@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "846615878928",
+    "project_id": "payment-manager-a3ef0",
+    "storage_bucket": "payment-manager-a3ef0.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:846615878928:android:491798342c34a6b4cad995",
+        "android_client_info": {
+          "package_name": "com.example.badge_task"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDc6KwqTnLjT21dMAChI8RZpf90BiFSVT0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

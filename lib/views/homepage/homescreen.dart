@@ -1,10 +1,25 @@
 import 'package:badge_task/constants/constants.dart';
+import 'package:badge_task/controller/dataprovider.dart';
 import 'package:badge_task/views/homepage/widgets/paymentbox.dart';
+import 'package:badge_task/views/homepage/widgets/visitorbox.dart';
+import 'package:badge_task/views/payment_history/paymenthistory.dart';
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  @override
+  void initState() {
+    Provider.of<DataController>(context, listen: false).getAllVisitors();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -16,50 +31,13 @@ class HomeScreen extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           FloatingActionButton(
+            heroTag: 'btn1',
             backgroundColor: Colors.blue,
             onPressed: () {
               showDialog(
                 context: context,
                 builder: (context) {
-                  return AlertDialog(
-                    content: const Text(
-                      'Enter visitor Details',
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                    actions: [
-                      TextFormField(
-                        decoration: const InputDecoration(
-                            border: OutlineInputBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(20))),
-                            prefixIcon: Icon(Icons.person),
-                            hintText: 'Enter visitor name'),
-                      ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      TextFormField(
-                        decoration: const InputDecoration(
-                            border: OutlineInputBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(20))),
-                            prefixIcon: Icon(Icons.person),
-                            hintText: 'Enter Sponsor name'),
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          TextButton(
-                              onPressed: () {
-                                Navigator.pop(context);
-                              },
-                              child: Text('Cancel')),
-                          TextButton(onPressed: () {}, child: Text('Save'))
-                        ],
-                      )
-                    ],
-                  );
+                  return VisitorDialogueBox();
                 },
               );
             },
@@ -70,8 +48,13 @@ class HomeScreen extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           FloatingActionButton(
+            heroTag: 'btn2',
             backgroundColor: Colors.blue,
-            onPressed: () {},
+            onPressed: () {
+              Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) => PaymentHistory(),
+              ));
+            },
             child: const Icon(
               Icons.attach_money_outlined,
               color: Colors.white,
@@ -88,57 +71,63 @@ class HomeScreen extends StatelessWidget {
           )),
       body: Column(
         children: [
-          SizedBox(
-            height: size.height * 0.78,
-            child: GridView.builder(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2),
-              itemCount: 8,
-              itemBuilder: (context, index) {
-                return Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: GestureDetector(
-                    onTap: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) {
-                          return const PaymentDialogueBox();
-                        },
-                      );
-                    },
-                    child: Container(
-                      height: size.height * 0.2,
-                      width: size.width * 0.2,
-                      decoration: const BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.all(Radius.circular(20))),
-                      child: Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const CircleAvatar(
-                              backgroundColor: Colors.green,
-                            ),
-                            const SizedBox(
-                              height: 10,
-                            ),
-                            const Text(
-                              'Name',
-                              style: TextStyle(
-                                  fontSize: 16, fontWeight: FontWeight.bold),
-                            ),
-                            Text(
-                              'Sub name',
-                              style: TextStyle(
-                                  color: Colors.black.withOpacity(0.5)),
-                            )
-                          ],
+          Consumer<DataController>(
+            builder: (context, value, child) => SizedBox(
+              height: size.height * 0.78,
+              child: GridView.builder(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2),
+                itemCount: value.visiors.length,
+                itemBuilder: (context, index) {
+                  final visitor = value.visiors[index];
+                  return Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: GestureDetector(
+                      onTap: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return PaymentDialogueBox(
+                              visitorname: visitor.name,
+                            );
+                          },
+                        );
+                      },
+                      child: Container(
+                        height: size.height * 0.2,
+                        width: size.width * 0.2,
+                        decoration: const BoxDecoration(
+                            color: Colors.white,
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(20))),
+                        child: Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const CircleAvatar(
+                                backgroundColor: Colors.green,
+                              ),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              Text(
+                                visitor.name,
+                                style: const TextStyle(
+                                    fontSize: 16, fontWeight: FontWeight.bold),
+                              ),
+                              Text(
+                                visitor.sponsorname,
+                                style: TextStyle(
+                                    color: Colors.black.withOpacity(0.5)),
+                              )
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                );
-              },
+                  );
+                },
+              ),
             ),
           ),
           Expanded(
