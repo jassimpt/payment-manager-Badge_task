@@ -1,5 +1,11 @@
+import 'package:hive/hive.dart';
+part 'visitorsmodel.g.dart';
+
+@HiveType(typeId: 2)
 class VisitorsModel {
+  @HiveField(0)
   String name;
+  @HiveField(1)
   String sponsorname;
 
   VisitorsModel({

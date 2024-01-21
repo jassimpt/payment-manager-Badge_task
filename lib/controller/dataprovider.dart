@@ -1,28 +1,47 @@
 import 'package:badge_task/model/paymentmodel.dart';
 import 'package:badge_task/model/visitorsmodel.dart';
 import 'package:badge_task/service/firebaseservice.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 
 class DataController extends ChangeNotifier {
   FirebaseService service = FirebaseService();
-  List<VisitorsModel> visiors = [];
-  List<PaymentModel> payments = [];
+  List<VisitorsModel> visitorslist = [];
+  List<PaymentModel> paymentslist = [];
 
-  void addVisitor({name, sponsorname}) {
+  void addVisitor({name, sponsorname}) async {
+    final visitorsbox = await Hive.openBox<VisitorsModel>("visitors");
+
+    var connectionresult = await Connectivity().checkConnectivity();
     try {
       VisitorsModel visitor =
           VisitorsModel(name: name, sponsorname: sponsorname);
-      service.addVisitor(visitor, name);
+      if (connectionresult == ConnectivityResult.none) {
+        visitorsbox.add(visitor);
+        visitorslist.add(visitor);
+      } else {
+        service.addVisitor(visitor, name);
+      }
     } catch (e) {
       throw Exception(e);
     }
   }
 
-  void addpayment(String amount, String name, String paymentmethod) {
+  void addpayment(String amount, String name, String paymentmethod) async {
+    final paymentsbox = await Hive.openBox<PaymentModel>("payments");
+
+    var connectionresult = await Connectivity().checkConnectivity();
+
     try {
       PaymentModel payments = PaymentModel(
           amount: amount, name: name, paymentmethod: paymentmethod);
-      service.addPayment(name, payments);
+      if (connectionresult == ConnectivityResult.none) {
+        paymentsbox.add(payments);
+        paymentslist.add(payments);
+      } else {
+        service.addPayment(name, payments);
+      }
     } catch (e) {
       throw Exception(e);
     }
@@ -31,12 +50,12 @@ class DataController extends ChangeNotifier {
   List<VisitorsModel> getAllVisitors() {
     try {
       service.firestore.collection("visitors").snapshots().listen((visitor) {
-        visiors = visitor.docs
+        visitorslist = visitor.docs
             .map((doc) => VisitorsModel.fromJson(doc.data()))
             .toList();
         notifyListeners();
       });
-      return visiors;
+      return visitorslist;
     } catch (e) {
       throw Exception(e);
     }
@@ -45,12 +64,40 @@ class DataController extends ChangeNotifier {
   List<PaymentModel> getAllPayments() {
     try {
       service.firestore.collection('payments').snapshots().listen((payment) {
-        payments = payment.docs
+        paymentslist = payment.docs
             .map((doc) => PaymentModel.fromJson(doc.data()))
             .toList();
         notifyListeners();
       });
-      return payments;
+      return paymentslist;
+    } catch (e) {
+      throw Exception(e);
+    }
+  }
+
+  fetchDataFromHive() async {
+    final visitorsbox = await Hive.openBox<VisitorsModel>("visitors");
+    final paymentsbox = await Hive.openBox<PaymentModel>("Payments");
+    visitorslist.clear();
+    visitorslist = visitorsbox.values.toList();
+    paymentslist.clear();
+    paymentslist = paymentsbox.values.toList();
+
+    notifyListeners();
+  }
+
+  getAllData() async {
+    try {
+      var connectivityresult = await Connectivity().checkConnectivity();
+      if (connectivityresult == ConnectivityResult.none) {
+        await fetchDataFromHive();
+        notifyListeners();
+      } else {
+        service.syncDataWithFirebase();
+        getAllVisitors();
+        getAllPayments();
+        notifyListeners();
+      }
     } catch (e) {
       throw Exception(e);
     }

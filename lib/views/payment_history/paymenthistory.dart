@@ -23,11 +23,11 @@ class _PaymentHistoryState extends State<PaymentHistory> {
 
   calculateTotal() {
     final value = Provider.of<DataController>(context, listen: false);
-    for (var i = 0; i < value.payments.length; i++) {
-      if (value.payments[i].paymentmethod == "CASH") {
-        cash.add(value.payments[i].amount);
-      } else if (value.payments[i].paymentmethod == "UPI") {
-        upi.add(value.payments[i].amount);
+    for (var i = 0; i < value.paymentslist.length; i++) {
+      if (value.paymentslist[i].paymentmethod == "CASH") {
+        cash.add(value.paymentslist[i].amount);
+      } else if (value.paymentslist[i].paymentmethod == "UPI") {
+        upi.add(value.paymentslist[i].amount);
       }
     }
     totalcash = cash.fold(0, (a, b) => a + int.parse(b));
@@ -66,9 +66,9 @@ class _PaymentHistoryState extends State<PaymentHistory> {
             builder: (context, value, child) => SizedBox(
               height: size.height * 0.75,
               child: ListView.builder(
-                itemCount: value.payments.length,
+                itemCount: value.paymentslist.length,
                 itemBuilder: (context, index) {
-                  final payment = value.payments[index];
+                  final payment = value.paymentslist[index];
 
                   return Padding(
                     padding:

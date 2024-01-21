@@ -1,4 +1,5 @@
 import 'package:badge_task/controller/dataprovider.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -11,7 +12,8 @@ class VisitorDialogueBox extends StatelessWidget {
   final TextEditingController sponsorcontroller = TextEditingController();
   @override
   Widget build(BuildContext context) {
-    final pro = Provider.of<DataController>(context);
+    final pro = Provider.of<DataController>(context, listen: false);
+
     return AlertDialog(
       content: const Text(
         'Enter visitor Details',
@@ -48,9 +50,9 @@ class VisitorDialogueBox extends StatelessWidget {
             TextButton(
                 onPressed: () {
                   pro.addVisitor(
-                      name: visitornamecontroller.text,
-                      sponsorname: sponsorcontroller.text);
-
+                    name: visitornamecontroller.text,
+                    sponsorname: sponsorcontroller.text,
+                  );
                   Navigator.pop(context);
                 },
                 child: const Text('Save'))
@@ -59,4 +61,15 @@ class VisitorDialogueBox extends StatelessWidget {
       ],
     );
   }
+
+  // addVisitor(context) async {
+  //   var connectivityresult = await Connectivity().checkConnectivity();
+  //   print(connectivityresult);
+  //   if (connectivityresult == ConnectivityResult.none) {
+  //     ScaffoldMessenger.of(context)
+  //         .showSnackBar(const SnackBar(content: Text('No network')));
+  //   } else {
+
+  //   }
+  // }
 }

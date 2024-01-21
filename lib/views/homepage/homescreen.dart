@@ -3,6 +3,7 @@ import 'package:badge_task/controller/dataprovider.dart';
 import 'package:badge_task/views/homepage/widgets/paymentbox.dart';
 import 'package:badge_task/views/homepage/widgets/visitorbox.dart';
 import 'package:badge_task/views/payment_history/paymenthistory.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -17,7 +18,8 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
-    Provider.of<DataController>(context, listen: false).getAllVisitors();
+    checkConnection();
+    Provider.of<DataController>(context, listen: false).getAllData();
     super.initState();
   }
 
@@ -52,7 +54,7 @@ class _HomeScreenState extends State<HomeScreen> {
             backgroundColor: Colors.blue,
             onPressed: () {
               Navigator.of(context).push(MaterialPageRoute(
-                builder: (context) => PaymentHistory(),
+                builder: (context) => const PaymentHistory(),
               ));
             },
             child: const Icon(
@@ -77,9 +79,9 @@ class _HomeScreenState extends State<HomeScreen> {
               child: GridView.builder(
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2),
-                itemCount: value.visiors.length,
+                itemCount: value.visitorslist.length,
                 itemBuilder: (context, index) {
-                  final visitor = value.visiors[index];
+                  final visitor = value.visitorslist[index];
                   return Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: GestureDetector(
@@ -157,5 +159,17 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
     );
+  }
+
+  checkConnection() async {
+    var connectionresult = await Connectivity().checkConnectivity();
+
+    if (connectionresult == ConnectivityResult.none) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('No Internet')));
+    } else {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Internet Available')));
+    }
   }
 }
