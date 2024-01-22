@@ -1,5 +1,6 @@
 import 'package:badge_task/controller/dataprovider.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class PaymentHistory extends StatefulWidget {
@@ -12,26 +13,15 @@ class PaymentHistory extends StatefulWidget {
 class _PaymentHistoryState extends State<PaymentHistory> {
   List cash = [];
   List upi = [];
+  List later = [];
   dynamic totalcash = 0;
   dynamic totalupi = 0;
+  dynamic totallater = 0;
+  dynamic total = 0;
   @override
   void initState() {
-    Provider.of<DataController>(context, listen: false).getAllPayments();
     super.initState();
     calculateTotal();
-  }
-
-  calculateTotal() {
-    final value = Provider.of<DataController>(context, listen: false);
-    for (var i = 0; i < value.paymentslist.length; i++) {
-      if (value.paymentslist[i].paymentmethod == "CASH") {
-        cash.add(value.paymentslist[i].amount);
-      } else if (value.paymentslist[i].paymentmethod == "UPI") {
-        upi.add(value.paymentslist[i].amount);
-      }
-    }
-    totalcash = cash.fold(0, (a, b) => a + int.parse(b));
-    totalupi = upi.fold(0, (a, b) => a + int.parse(b));
   }
 
   @override
@@ -41,7 +31,13 @@ class _PaymentHistoryState extends State<PaymentHistory> {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 220, 236, 255),
       appBar: AppBar(
-        actions: [TextButton(onPressed: () {}, child: const Text('Clear'))],
+        actions: [
+          TextButton(
+              onPressed: () {
+                Provider.of<DataController>(context, listen: false).clearData();
+              },
+              child: const Text('Clear'))
+        ],
       ),
       body: Column(
         children: [
@@ -69,6 +65,8 @@ class _PaymentHistoryState extends State<PaymentHistory> {
                 itemCount: value.paymentslist.length,
                 itemBuilder: (context, index) {
                   final payment = value.paymentslist[index];
+                  final formateddate =
+                      DateFormat("hh:mm a").format(payment.time);
 
                   return Padding(
                     padding:
@@ -97,7 +95,7 @@ class _PaymentHistoryState extends State<PaymentHistory> {
                                 style: const TextStyle(
                                   fontSize: 16,
                                 )),
-                            Text('9;20',
+                            Text(formateddate,
                                 style: TextStyle(
                                     fontSize: 15,
                                     fontWeight: FontWeight.bold,
@@ -140,14 +138,14 @@ class _PaymentHistoryState extends State<PaymentHistory> {
                         Text(totalupi.toString())
                       ],
                     ),
-                    const Column(
+                    Column(
                       children: [
-                        Text(
+                        const Text(
                           "Total",
                           style: TextStyle(
                               fontSize: 16, fontWeight: FontWeight.bold),
                         ),
-                        Text('0.00')
+                        Text(total.toString())
                       ],
                     ),
                   ],
@@ -158,5 +156,22 @@ class _PaymentHistoryState extends State<PaymentHistory> {
         ],
       ),
     );
+  }
+
+  calculateTotal() {
+    final value = Provider.of<DataController>(context, listen: false);
+    for (var i = 0; i < value.paymentslist.length; i++) {
+      if (value.paymentslist[i].paymentmethod == "CASH") {
+        cash.add(value.paymentslist[i].amount);
+      } else if (value.paymentslist[i].paymentmethod == "UPI") {
+        upi.add(value.paymentslist[i].amount);
+      } else if (value.paymentslist[i].paymentmethod == "LATER") {
+        later.add(value.paymentslist[i].amount);
+      }
+    }
+    totalcash = cash.fold(0, (a, b) => a + int.parse(b));
+    totalupi = upi.fold(0, (a, b) => a + int.parse(b));
+    totallater = later.fold(0, (a, b) => a + int.parse(b));
+    total = totalcash + totallater + totalupi;
   }
 }

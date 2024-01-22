@@ -2,21 +2,15 @@ import 'package:badge_task/controller/baseprovider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class PaymentMethod extends StatefulWidget {
+class PaymentMethod extends StatelessWidget {
   PaymentMethod({
+    required this.switchvalue,
     required this.paymethod,
     super.key,
   });
 
-  String paymethod;
-
-  @override
-  State<PaymentMethod> createState() => _PaymentMethodState();
-}
-
-class _PaymentMethodState extends State<PaymentMethod> {
-  bool isswtiched = false;
-
+  final String paymethod;
+  final bool switchvalue;
   @override
   Widget build(BuildContext context) {
     return Consumer<BaseProvider>(
@@ -24,13 +18,13 @@ class _PaymentMethodState extends State<PaymentMethod> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            widget.paymethod,
-            style: TextStyle(fontSize: 16),
+            paymethod,
+            style: const TextStyle(fontSize: 16),
           ),
           Switch(
-            value: isswtiched,
+            value: switchvalue,
             onChanged: (value) {
-              pro.valueSetter(value: value, paymode: widget.paymethod);
+              pro.valueSetter(value: value, paymode: paymethod);
             },
           )
         ],

@@ -1,5 +1,6 @@
-import 'package:badge_task/constants/constants.dart';
+import 'package:badge_task/controller/baseprovider.dart';
 import 'package:badge_task/controller/dataprovider.dart';
+import 'package:badge_task/model/visitorsmodel.dart';
 import 'package:badge_task/views/homepage/widgets/paymentbox.dart';
 import 'package:badge_task/views/homepage/widgets/visitorbox.dart';
 import 'package:badge_task/views/payment_history/paymenthistory.dart';
@@ -16,10 +17,13 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  List<VisitorsModel> filteredvisitors = [];
+
   @override
   void initState() {
     checkConnection();
-    Provider.of<DataController>(context, listen: false).getAllData();
+    final pro = Provider.of<DataController>(context, listen: false);
+    pro.getAllData();
     super.initState();
   }
 
@@ -71,17 +75,25 @@ class _HomeScreenState extends State<HomeScreen> {
           title: const Center(
             child: Text('Payment Manager'),
           )),
-      body: Column(
-        children: [
-          Consumer<DataController>(
-            builder: (context, value, child) => SizedBox(
+      body: Consumer2<BaseProvider, DataController>(
+          builder: (context, base, data, child) {
+        base.generateAlphabets(data.visitorslist);
+
+        return Column(
+          children: [
+            SizedBox(
               height: size.height * 0.78,
               child: GridView.builder(
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2),
-                itemCount: value.visitorslist.length,
+                itemCount: filteredvisitors.length,
                 itemBuilder: (context, index) {
-                  final visitor = value.visitorslist[index];
+                  final visitor = filteredvisitors[index];
+                  var payments;
+                  if (data.paymentslist.isNotEmpty &&
+                      index < data.paymentslist.length) {
+                    payments = data.paymentslist[index];
+                  }
                   return Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: GestureDetector(
@@ -106,9 +118,12 @@ class _HomeScreenState extends State<HomeScreen> {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const CircleAvatar(
-                                backgroundColor: Colors.green,
-                              ),
+                              CircleAvatar(
+                                  backgroundColor: payments != null &&
+                                          payments.paymentcompleted &&
+                                          visitor.name == payments.name
+                                      ? Colors.green
+                                      : Colors.blue),
                               const SizedBox(
                                 height: 10,
                               ),
@@ -131,45 +146,63 @@ class _HomeScreenState extends State<HomeScreen> {
                 },
               ),
             ),
-          ),
-          Expanded(
-            child: ListView.builder(
-              itemCount: alphabets.length,
-              scrollDirection: Axis.horizontal,
-              itemBuilder: (context, index) {
-                final String alphabet = alphabets[index];
-                return Padding(
-                  padding: const EdgeInsets.all(15),
-                  child: Container(
-                    width: size.width * 0.2,
-                    decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(20)),
-                    child: Center(
-                        child: Text(
-                      alphabet,
-                      style: const TextStyle(
-                          fontSize: 18, fontWeight: FontWeight.bold),
-                    )),
-                  ),
-                );
-              },
+            Expanded(
+              child: ListView.builder(
+                itemCount: base.alphabets.length,
+                scrollDirection: Axis.horizontal,
+                itemBuilder: (context, index) {
+                  final String alphabet = base.alphabets[index];
+                  filterVisitors(
+                      firstletter: base.alphabets[base.selected],
+                      visitorslist: data.visitorslist);
+                  return Padding(
+                    padding: const EdgeInsets.all(15),
+                    child: GestureDetector(
+                      onTap: () {
+                        base.alphabetChanger(index);
+                      },
+                      child: Container(
+                        width: size.width * 0.2,
+                        decoration: BoxDecoration(
+                            color: base.selected == index
+                                ? Colors.blue
+                                : Colors.white,
+                            borderRadius: BorderRadius.circular(20)),
+                        child: Center(
+                            child: Text(
+                          alphabet,
+                          style: const TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold),
+                        )),
+                      ),
+                    ),
+                  );
+                },
+              ),
             ),
-          ),
-        ],
-      ),
+          ],
+        );
+      }),
     );
   }
 
-  checkConnection() async {
+  void checkConnection() async {
     var connectionresult = await Connectivity().checkConnectivity();
 
     if (connectionresult == ConnectivityResult.none) {
       ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('No Internet')));
+          .showSnackBar(const SnackBar(content: Text('No Internet')));
     } else {
       ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Internet Available')));
+          .showSnackBar(const SnackBar(content: Text('Internet Available')));
     }
+  }
+
+  void filterVisitors(
+      {String? firstletter, List<VisitorsModel>? visitorslist}) {
+    filteredvisitors = visitorslist!
+        .where((visitor) =>
+            visitor.name.toLowerCase().startsWith(firstletter!.toLowerCase()))
+        .toList();
   }
 }

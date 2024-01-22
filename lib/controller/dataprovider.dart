@@ -1,3 +1,4 @@
+import 'package:badge_task/controller/baseprovider.dart';
 import 'package:badge_task/model/paymentmodel.dart';
 import 'package:badge_task/model/visitorsmodel.dart';
 import 'package:badge_task/service/firebaseservice.dart';
@@ -9,6 +10,7 @@ class DataController extends ChangeNotifier {
   FirebaseService service = FirebaseService();
   List<VisitorsModel> visitorslist = [];
   List<PaymentModel> paymentslist = [];
+  BaseProvider base = BaseProvider();
 
   void addVisitor({name, sponsorname}) async {
     final visitorsbox = await Hive.openBox<VisitorsModel>("visitors");
@@ -24,21 +26,27 @@ class DataController extends ChangeNotifier {
         service.addVisitor(visitor, name);
       }
     } catch (e) {
-      throw Exception(e);
+      print(e);
     }
   }
 
-  void addpayment(String amount, String name, String paymentmethod) async {
+  void addpayment(String amount, String name, String paymentmethod, time,
+      bool paymentstatus) async {
     final paymentsbox = await Hive.openBox<PaymentModel>("payments");
 
     var connectionresult = await Connectivity().checkConnectivity();
 
     try {
       PaymentModel payments = PaymentModel(
-          amount: amount, name: name, paymentmethod: paymentmethod);
+          amount: amount,
+          name: name,
+          paymentmethod: paymentmethod,
+          time: time,
+          paymentcompleted: paymentstatus);
       if (connectionresult == ConnectivityResult.none) {
         paymentsbox.add(payments);
         paymentslist.add(payments);
+        notifyListeners();
       } else {
         service.addPayment(name, payments);
       }
@@ -101,5 +109,16 @@ class DataController extends ChangeNotifier {
     } catch (e) {
       throw Exception(e);
     }
+  }
+
+  void clearData() async {
+    final paymentsbox = await Hive.openBox<PaymentModel>("Payments");
+    paymentslist.clear();
+    paymentsbox.clear();
+    var payments = await service.firestore.collection('payments').get();
+    for (var doc in payments.docs) {
+      await doc.reference.delete();
+    }
+    notifyListeners();
   }
 }

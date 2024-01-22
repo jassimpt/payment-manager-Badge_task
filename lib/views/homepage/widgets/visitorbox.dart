@@ -1,6 +1,8 @@
+import 'package:badge_task/controller/baseprovider.dart';
 import 'package:badge_task/controller/dataprovider.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
+
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
 class VisitorDialogueBox extends StatelessWidget {
@@ -20,6 +22,29 @@ class VisitorDialogueBox extends StatelessWidget {
         style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
       ),
       actions: [
+        Center(
+          child: CircleAvatar(
+            radius: 50,
+            backgroundColor: Colors.blue,
+          ),
+        ),
+        Consumer<BaseProvider>(
+          builder: (context, value, child) => Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              TextButton(
+                  onPressed: () {
+                    value.imageSelecter(source: ImageSource.camera);
+                  },
+                  child: Text('Camera')),
+              TextButton(
+                  onPressed: () {
+                    value.imageSelecter(source: ImageSource.gallery);
+                  },
+                  child: Text('gallery')),
+            ],
+          ),
+        ),
         TextFormField(
           controller: visitornamecontroller,
           decoration: const InputDecoration(
@@ -61,15 +86,4 @@ class VisitorDialogueBox extends StatelessWidget {
       ],
     );
   }
-
-  // addVisitor(context) async {
-  //   var connectivityresult = await Connectivity().checkConnectivity();
-  //   print(connectivityresult);
-  //   if (connectivityresult == ConnectivityResult.none) {
-  //     ScaffoldMessenger.of(context)
-  //         .showSnackBar(const SnackBar(content: Text('No network')));
-  //   } else {
-
-  //   }
-  // }
 }
