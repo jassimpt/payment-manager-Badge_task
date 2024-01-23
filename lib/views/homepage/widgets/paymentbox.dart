@@ -3,14 +3,13 @@ import 'package:badge_task/controller/dataprovider.dart';
 import 'package:badge_task/views/homepage/widgets/paymentmethod.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:intl/intl.dart';
 
 class PaymentDialogueBox extends StatelessWidget {
   PaymentDialogueBox({
     super.key,
     required this.visitorname,
   });
-  String visitorname;
+  final String visitorname;
 
   final TextEditingController amountcontroller = TextEditingController();
 
@@ -37,14 +36,14 @@ class PaymentDialogueBox extends StatelessWidget {
         PaymentMethod(paymethod: "UPI", switchvalue: basepro.upiswitch),
         PaymentMethod(paymethod: "CASH", switchvalue: basepro.cashswitch),
         PaymentMethod(paymethod: "LATER", switchvalue: basepro.laterswitch),
-        SizedBox(
+        const SizedBox(
           height: 10,
         ),
         Padding(
           padding: const EdgeInsets.all(8.0),
           child: TextFormField(
             controller: amountcontroller,
-            decoration: InputDecoration(
+            decoration: const InputDecoration(
                 border: OutlineInputBorder(),
                 prefixIcon: Icon(Icons.attach_money_outlined)),
           ),
@@ -61,12 +60,12 @@ class PaymentDialogueBox extends StatelessWidget {
 
                   Navigator.pop(context);
                 },
-                child: Text('Done')),
+                child: const Text('Done')),
             TextButton(
                 onPressed: () {
                   Navigator.pop(context);
                 },
-                child: Text('Cancel')),
+                child: const Text('Cancel')),
           ],
         )
       ],

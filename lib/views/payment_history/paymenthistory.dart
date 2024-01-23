@@ -81,7 +81,7 @@ class _PaymentHistoryState extends State<PaymentHistory> {
                                 style: const TextStyle(
                                   fontSize: 16,
                                 )),
-                            Text("${payment.amount}-${payment.paymentmethod}",
+                            Text("₹${payment.amount}-${payment.paymentmethod}",
                                 style: TextStyle(
                                     fontSize: 15,
                                     fontWeight: FontWeight.bold,
@@ -125,7 +125,7 @@ class _PaymentHistoryState extends State<PaymentHistory> {
                           style: TextStyle(
                               fontSize: 16, fontWeight: FontWeight.bold),
                         ),
-                        Text(totalcash.toString())
+                        Text("₹${totalcash.toString()}")
                       ],
                     ),
                     Column(
@@ -135,7 +135,7 @@ class _PaymentHistoryState extends State<PaymentHistory> {
                           style: TextStyle(
                               fontSize: 16, fontWeight: FontWeight.bold),
                         ),
-                        Text(totalupi.toString())
+                        Text("₹${totalupi.toString()}")
                       ],
                     ),
                     Column(
@@ -145,7 +145,7 @@ class _PaymentHistoryState extends State<PaymentHistory> {
                           style: TextStyle(
                               fontSize: 16, fontWeight: FontWeight.bold),
                         ),
-                        Text(total.toString())
+                        Text("₹${total.toString()}")
                       ],
                     ),
                   ],

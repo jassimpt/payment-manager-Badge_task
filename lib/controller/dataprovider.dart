@@ -10,20 +10,26 @@ class DataController extends ChangeNotifier {
   FirebaseService service = FirebaseService();
   List<VisitorsModel> visitorslist = [];
   List<PaymentModel> paymentslist = [];
-  BaseProvider base = BaseProvider();
 
-  void addVisitor({name, sponsorname}) async {
+  void addVisitor(
+      {String? name, String? sponsorname, fileimage, selectedimage}) async {
     final visitorsbox = await Hive.openBox<VisitorsModel>("visitors");
-
     var connectionresult = await Connectivity().checkConnectivity();
+
     try {
-      VisitorsModel visitor =
-          VisitorsModel(name: name, sponsorname: sponsorname);
       if (connectionresult == ConnectivityResult.none) {
+        VisitorsModel visitor = VisitorsModel(
+            name: name!, sponsorname: sponsorname!, image: selectedimage);
         visitorsbox.add(visitor);
         visitorslist.add(visitor);
+        notifyListeners();
       } else {
+        await service.imageAdder(image: fileimage, name: name);
+
+        VisitorsModel visitor = VisitorsModel(
+            name: name!, sponsorname: sponsorname!, image: service.downloadurl);
         service.addVisitor(visitor, name);
+        notifyListeners();
       }
     } catch (e) {
       print(e);
@@ -113,6 +119,9 @@ class DataController extends ChangeNotifier {
 
   void clearData() async {
     final paymentsbox = await Hive.openBox<PaymentModel>("Payments");
+    final visitorsbox = await Hive.openBox<VisitorsModel>("visitors");
+    visitorslist.clear();
+    visitorsbox.clear();
     paymentslist.clear();
     paymentsbox.clear();
     var payments = await service.firestore.collection('payments').get();

@@ -1,8 +1,11 @@
+import 'dart:io';
+
 import 'package:badge_task/controller/baseprovider.dart';
 import 'package:badge_task/controller/dataprovider.dart';
 import 'package:badge_task/model/visitorsmodel.dart';
 import 'package:badge_task/views/homepage/widgets/paymentbox.dart';
 import 'package:badge_task/views/homepage/widgets/visitorbox.dart';
+import 'package:badge_task/views/homepage/widgets/visitorscard.dart';
 import 'package:badge_task/views/payment_history/paymenthistory.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 
@@ -18,6 +21,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   List<VisitorsModel> filteredvisitors = [];
+  bool connection = true;
 
   @override
   void initState() {
@@ -89,60 +93,16 @@ class _HomeScreenState extends State<HomeScreen> {
                 itemCount: filteredvisitors.length,
                 itemBuilder: (context, index) {
                   final visitor = filteredvisitors[index];
-                  var payments;
+                  dynamic payments;
                   if (data.paymentslist.isNotEmpty &&
                       index < data.paymentslist.length) {
                     payments = data.paymentslist[index];
                   }
-                  return Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: GestureDetector(
-                      onTap: () {
-                        showDialog(
-                          context: context,
-                          builder: (context) {
-                            return PaymentDialogueBox(
-                              visitorname: visitor.name,
-                            );
-                          },
-                        );
-                      },
-                      child: Container(
-                        height: size.height * 0.2,
-                        width: size.width * 0.2,
-                        decoration: const BoxDecoration(
-                            color: Colors.white,
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(20))),
-                        child: Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              CircleAvatar(
-                                  backgroundColor: payments != null &&
-                                          payments.paymentcompleted &&
-                                          visitor.name == payments.name
-                                      ? Colors.green
-                                      : Colors.blue),
-                              const SizedBox(
-                                height: 10,
-                              ),
-                              Text(
-                                visitor.name,
-                                style: const TextStyle(
-                                    fontSize: 16, fontWeight: FontWeight.bold),
-                              ),
-                              Text(
-                                visitor.sponsorname,
-                                style: TextStyle(
-                                    color: Colors.black.withOpacity(0.5)),
-                              )
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
+                  return VisitorsCard(
+                      visitor: visitor,
+                      size: size,
+                      payments: payments,
+                      connection: connection);
                 },
               ),
             ),
@@ -190,9 +150,11 @@ class _HomeScreenState extends State<HomeScreen> {
     var connectionresult = await Connectivity().checkConnectivity();
 
     if (connectionresult == ConnectivityResult.none) {
+      connection = false;
       ScaffoldMessenger.of(context)
           .showSnackBar(const SnackBar(content: Text('No Internet')));
     } else {
+      connection = true;
       ScaffoldMessenger.of(context)
           .showSnackBar(const SnackBar(content: Text('Internet Available')));
     }

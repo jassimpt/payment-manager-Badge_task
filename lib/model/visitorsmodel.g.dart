@@ -17,6 +17,7 @@ class VisitorsModelAdapter extends TypeAdapter<VisitorsModel> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return VisitorsModel(
+      image: fields[2] as String?,
       name: fields[0] as String,
       sponsorname: fields[1] as String,
     );
@@ -25,11 +26,13 @@ class VisitorsModelAdapter extends TypeAdapter<VisitorsModel> {
   @override
   void write(BinaryWriter writer, VisitorsModel obj) {
     writer
-      ..writeByte(2)
+      ..writeByte(3)
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
-      ..write(obj.sponsorname);
+      ..write(obj.sponsorname)
+      ..writeByte(2)
+      ..write(obj.image);
   }
 
   @override

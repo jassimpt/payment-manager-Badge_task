@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class PaymentMethod extends StatelessWidget {
-  PaymentMethod({
+  const PaymentMethod({
     required this.switchvalue,
     required this.paymethod,
     super.key,
