@@ -1,4 +1,3 @@
-import 'package:badge_task/controller/baseprovider.dart';
 import 'package:badge_task/model/paymentmodel.dart';
 import 'package:badge_task/model/visitorsmodel.dart';
 import 'package:badge_task/service/firebaseservice.dart';
@@ -119,9 +118,7 @@ class DataController extends ChangeNotifier {
 
   void clearData() async {
     final paymentsbox = await Hive.openBox<PaymentModel>("Payments");
-    final visitorsbox = await Hive.openBox<VisitorsModel>("visitors");
-    visitorslist.clear();
-    visitorsbox.clear();
+
     paymentslist.clear();
     paymentsbox.clear();
     var payments = await service.firestore.collection('payments').get();
